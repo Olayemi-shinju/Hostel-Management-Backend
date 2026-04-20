@@ -188,7 +188,7 @@ export const getAllAdmins = async (req, res) => {
 
     const admin = await User.find({ role: 'admin' }).sort({ createdAt: -1 }).skip(skip).limit(limit)
 
-    const total = await User.countDocument();
+    const total = await User.countDocuments();
 
     re.status(200).json({ success: true, msg: 'Admin successfully retrived', data: admin, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } })
   } catch (error) {
@@ -203,7 +203,7 @@ export const getAllUser = async (req, res) => {
 
     const user = await User.find({ role: 'user' }).sort({ createdAt: -1 }).skip(skip).limit(limit)
 
-    const total = await User.countDocument();
+    const total = await User.countDocuments();
 
     re.status(200).json({ success: true, msg: 'User successfully retrived', data: user, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } })
   } catch (error) {
