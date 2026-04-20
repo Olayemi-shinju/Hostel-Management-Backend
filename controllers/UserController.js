@@ -35,61 +35,78 @@ export const Register = async (req, res) => {
   }
 }
 
-
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email })
+
+    const user = await User.findOne({ email });
+
     if (!user || !(await user.comparePassword(password))) {
-      return res.status(403).json({ success: false, message: "Invalid credentials" });
+      return res.status(403).json({
+        success: false,
+        message: "Invalid credentials"
+      });
     }
+
     if (!user.isVerified) {
-      return res.status(403).json({ success: false, message: "Please verify your email" })
+      return res.status(403).json({
+        success: false,
+        message: "Please verify your email"
+      });
     }
+
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "2d" }
     );
+
     user.lastLogin = new Date();
-    user.isOnline = true
+    user.isOnline = true;
     await user.save();
 
-    const userObj = user.toObject()
-    delete userObj.password
+    const userObj = user.toObject();
+    delete userObj.password;
 
-    res.cookie('token', token, {
+    res.cookie("token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'lax',
+      secure: false, // IMPORTANT for localhost
+      sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     res.status(200).json({
       success: true,
-      message: "User Login successfully",
-      user: userObj,
+      message: "Login successful",
+      user: userObj
     });
+
   } catch (error) {
-    console.log(error)
-    res.send({ success: false, msg: 'Server Error' });
+    console.log(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
-
 
 export const logOut = async (req, res) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: true,
+      secure: false,
       sameSite: "lax"
-    })
-    return res.status(200).json({ success: true, msg: 'Logged Out Successfully' })
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully"
+    });
+
   } catch (error) {
-    console.log(error)
-    res.send({ success: false, msg: 'Server Error' });
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
   }
-}
+};
 
 export const verifyEmail = async (req, res) => {
   try {
@@ -184,33 +201,61 @@ export const resetPassword = async (req, res) => {
 
 export const getAllAdmins = async (req, res) => {
   try {
-    const { page, limit, skip } = pagination(req)
+    const { page, limit, skip } = pagination(req);
 
-    const admin = await User.find({ role: 'admin' }).sort({ createdAt: -1 }).skip(skip).limit(limit)
+    const admins = await User.find({ role: "admin" })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select("-password");
 
-    const total = await User.countDocuments();
+    const total = await User.countDocuments({ role: "admin" });
 
-    re.status(200).json({ success: true, msg: 'Admin successfully retrived', data: admin, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } })
+    res.status(200).json({
+      success: true,
+      data: admins,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+
   } catch (error) {
-    console.log(error)
-    res.status(500).json({ success: false, message: error.message });
+    console.log(error);
+    res.status(500).json({ message: error.message });
   }
-}
+};
 
 export const getAllUser = async (req, res) => {
   try {
-    const { page, limit, skip } = pagination(req)
+    const { page, limit, skip } = pagination(req);
 
-    const user = await User.find({ role: 'user' }).sort({ createdAt: -1 }).skip(skip).limit(limit)
+    const users = await User.find({ role: "user" })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select("-password");
 
-    const total = await User.countDocuments();
+    const total = await User.countDocuments({ role: "user" });
 
-    re.status(200).json({ success: true, msg: 'User successfully retrived', data: user, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } })
+    res.status(200).json({
+      success: true,
+      data: users,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+
   } catch (error) {
-    console.log(error)
-    res.status(500).json({ success: false, message: error.message });
+    console.log(error);
+    res.status(500).json({ message: error.message });
   }
-}
+};
 
 
 export const getSingleUser = async (req, res) => {
