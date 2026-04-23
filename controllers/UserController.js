@@ -185,6 +185,8 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Inavlid or expired rest token' })
     }
 
+    if (await user.comparePassword(password)) return res.status(400).json({ success: false, msg: 'New password cannot be the same as old password' })
+
     user.password = password,
       user.resetPasswordToken = undefined,
       user.resetPasswordTokenExpireAt = undefined;
@@ -270,3 +272,59 @@ export const getSingleUser = async (req, res) => {
     res.status(500).json({ success: false, msg: 'An error occured' })
   }
 }
+
+export const updateData = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { name, phone, nin } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ success: false, msg: 'User not found' });
+
+    const updateFields = {};
+
+    if (name) updateFields.name = name;
+    if (phone) updateFields.phone = phone;
+    if (nin) updateFields.nin = nin;
+
+    if (req.files?.avatar) {
+      updateFields.avatar = req.files.avatar[0].path;
+    }
+
+    const updatedData = await User.findByIdAndUpdate(
+      userId,
+      updateFields,
+      { new: true }
+    ).select("-password");
+
+    return res.status(200).json({
+      success: true,
+      msg: 'Data Updated Successfully',
+      data: updatedData
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, msg: 'An error occurred' });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ success: false, msg: 'User not found' });
+
+    await User.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      msg: 'User deleted successfully'
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, msg: 'An error occurred' });
+  }
+};

@@ -1,6 +1,6 @@
 import express from 'express';
 
-import {forgotPassword, getAllAdmins, getAllUser, getSingleUser, login, logOut, Register, resendVerificationCode, resetPassword, verifyEmail} from '../controllers/UserController.js';
+import {deleteUser, forgotPassword, getAllAdmins, getAllUser, getSingleUser, login, logOut, Register, resendVerificationCode, resetPassword, updateData, verifyEmail} from '../controllers/UserController.js';
 import {protect, authorized} from '../middlewares/authMiddleware.js';
 const router = express.Router();
 
@@ -14,5 +14,7 @@ router.post('/log-out', logOut);
 router.get('/admins', protect, authorized('super-admin'), getAllAdmins);
 router.get('/users', protect, authorized('super-admin'), getAllUser);
 router.get('/user/:id', protect, authorized('super-admin'), getSingleUser);
+router.put('/update-user', protect, updateData);
+router.delete('/delete/:id', protect, authorized("super-admin"), deleteUser)
 
 export default router

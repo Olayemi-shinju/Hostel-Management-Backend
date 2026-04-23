@@ -7,10 +7,11 @@ const UserSchema = new mongoose.Schema({
     phone: { type: String, required: true },
     password: { type: String, required: true },
     nin: { type: String },
-    role: { 
-        type: String, 
-        enum: ['super-admin', 'admin', 'user'], 
-        default: 'user' 
+    avatar: { type: String },
+    role: {
+        type: String,
+        enum: ['super-admin', 'admin', 'user'],
+        default: 'user'
     },
     lastLogin: { type: Date },
     isVerified: { type: Boolean, default: false },
@@ -23,7 +24,7 @@ const UserSchema = new mongoose.Schema({
 
 
 UserSchema.pre("save", async function () {
-    if (!this.isModified('password')) return 
+    if (!this.isModified('password')) return
 
     this.password = await bcrypt.hash(this.password, 10);
 
