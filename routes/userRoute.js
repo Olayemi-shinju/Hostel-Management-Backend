@@ -2,7 +2,7 @@ import express from 'express';
 
 import { deleteUser, forgotPassword, getAllAdmins, getAllUser, getSingleUser, login, logOut, Register, resendVerificationCode, resetPassword, updateData, verifyEmail } from '../controllers/UserController.js';
 import { protect, authorized } from '../middlewares/authMiddleware.js';
-import { adminLimiter, forgotPasswordLimiter, loginLimiter, otpLimiter, updateLimiter, userLimiter } from '../middlewares/authLimiter.js';
+import { adminLimiter, forgotPasswordLimiter, loginLimiter, otpLimiter, userLimiter } from '../middlewares/authLimiter.js';
 const router = express.Router();
 
 router.post('/register', Register);
