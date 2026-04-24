@@ -272,23 +272,32 @@ export const getSingleUser = async (req, res) => {
     res.status(500).json({ success: false, msg: 'An error occured' })
   }
 }
-
 export const updateData = async (req, res) => {
   try {
     const userId = req.user._id;
     const { name, phone, nin } = req.body;
 
     const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ success: false, msg: 'User not found' });
+    if (!user) {
+      return res.status(404).json({ success: false, msg: 'User not found' });
+    }
 
     const updateFields = {};
 
     if (name) updateFields.name = name;
     if (phone) updateFields.phone = phone;
-    if (nin) updateFields.nin = nin;
 
     if (req.files?.avatar) {
       updateFields.avatar = req.files.avatar[0].path;
+    }
+
+    if (user.role === "admin") {
+      if (nin) updateFields.nin = nin;
+
+      if (req.files?.idImage) {
+        updateFields.idImage = req.files.idImage[0].path;
+        updateFields.verificationStatus = "pending";
+      }
     }
 
     const updatedData = await User.findByIdAndUpdate(
@@ -308,6 +317,8 @@ export const updateData = async (req, res) => {
     res.status(500).json({ success: false, msg: 'An error occurred' });
   }
 };
+
+
 
 export const deleteUser = async (req, res) => {
   try {

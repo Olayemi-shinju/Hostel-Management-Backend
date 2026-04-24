@@ -19,7 +19,9 @@ const UserSchema = new mongoose.Schema({
     resetPasswordTokenExpireAt: Date,
     verificationToken: String,
     verificationTokenExpireAt: Date,
-    isOnline: { type: Boolean, default: false }
+    isOnline: { type: Boolean, default: false },
+    idImage: {type: String},
+    verificationStatus: {type: String, enum: ["pending", "verified", "rejected"], default: "pending"}
 }, { timestamps: true })
 
 
