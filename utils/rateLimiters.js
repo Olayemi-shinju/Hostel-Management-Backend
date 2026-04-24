@@ -6,9 +6,9 @@ export const createRateLimit = (windowMs, max, message) => {
         max,
         standardHeaders: true,
         legacyHeaders: false,
-        message: {
+        msg: {
             success: false,
-            msg
+            message
         }
     });
 }
