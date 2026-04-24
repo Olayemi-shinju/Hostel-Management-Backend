@@ -8,7 +8,7 @@ export const createRateLimit = (windowMs, max, message) => {
         legacyHeaders: false,
         message: {
             success: false,
-            message
+            msg
         }
     });
 }
